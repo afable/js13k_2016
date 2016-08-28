@@ -271,11 +271,11 @@ var letters = {
         [, 1,],
         []
     ],
-    ')': [
+    '>': [
         [, 1,],
-        [, , 1],
-        [, , 1],
-        [, , 1],
+        [,1 , 1],
+        [, 1,1 ,1],
+        [, 1, 1],
         [, 1,]
     ]
 };
@@ -288,6 +288,10 @@ var Game = function () {
         backgroundDy = 170,
         referenceX,
         referenceY,
+        yellow = 'rgb(246, 207, 20)',
+        blue = 'rgb(0, 207, 20)',
+        mouseX,
+        mouseY,
         darkBackground = function () {
             ctx.fillStyle = 'rgb(0,0,0';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -309,8 +313,8 @@ var Game = function () {
             ctx.fill();
             ctx.stroke();
         },
-        drawText = function (string, size, dx, dy) {
-            ctx.fillStyle = 'rgb(246, 207, 20)';
+        drawText = function (string, size, dx, dy, color) {
+            ctx.fillStyle = color;
             var needed = [];
             string = string.toUpperCase();
             for (var i = 0; i < string.length; i++) {
@@ -355,7 +359,6 @@ var Game = function () {
         },
         renderText = function () {
             var startingY = referenceY + background.height + 80,
-                height = 250,
                 xPadding = 50,
                 containerWidth = background.width - xPadding * 2,
                 dim = 6,
@@ -365,7 +368,7 @@ var Game = function () {
                 lineOffset = dim * 6;
 
             // Process multi-line
-            var text = "your life o fool hangs by a thread. Your time is short. Your time is up. Your contract is terminated.";
+            var text = "your life o fool hangs by a thread. Your time is short. >";
             var lines = [];
             var tokens = text.split(" ");
             var line = "";
@@ -387,11 +390,20 @@ var Game = function () {
 
             renderTextContainer(xPadding,startingY, (lines.length +1) * lineOffset, containerWidth);
             ctx.lineWidth = 0;
-            ctx.stroke();
-
+            var color = yellow;
             var currentOffset = 0;
             for (var i = 0; i < lines.length; i++) {
-                drawText(lines[i], dim, referenceX+textPadding, startingTextY + currentOffset);
+                var bb = {
+                    x1: referenceX+textPadding,
+                    y1: startingTextY + currentOffset,
+                    x2: referenceX+textPadding + containerWidth,
+                    y2: startingTextY + currentOffset + lineOffset};
+                if( bb.x1 <= mouseX && mouseX <= bb.x2 && bb.y1 <= mouseY && mouseY <= bb.y2 ) {
+                    color = blue;
+                } else {
+                    color = yellow;
+                }
+                drawText(lines[i], dim, bb.x1, bb.y1, color);
                 currentOffset += lineOffset;
             }
 
@@ -421,10 +433,24 @@ var Game = function () {
             referenceX = (canvas.width - background.width) / 2;
             referenceY = (canvas.height - background.height) / 2 - backgroundDy;
         },
+        getMousePos = function (canvas, evt) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        },
         init = function (image) {
             scale = 3;
             background = resize(image, scale);
             adjustCanvas();
+            canvas.addEventListener('mousemove', function(evt) {
+                var mousePos = getMousePos(canvas, evt);
+                var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+                mouseX = mousePos.x;
+                mouseY = mousePos.y;
+                console.log(message);
+            }, false);
         };
     return {
         init: init,
