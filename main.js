@@ -15,23 +15,64 @@ var Game = function() {
         background,
         scale,
         backgroundDy = 170,
+        referenceX,
+        referenceY,
         darkBackground = function () {
             ctx.fillStyle = 'rgb(0,0,0';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         },
+        roundRect = function (x, y, width, height) {
+            var radius = {tl: 5, tr: 5, br: 5, bl: 5};
+            ctx.beginPath();
+            ctx.moveTo(x + radius.tl, y);
+            ctx.lineTo(x + width - radius.tr, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+            ctx.lineTo(x + width, y + height - radius.br);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+            ctx.lineTo(x + radius.bl, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+            ctx.lineTo(x, y + radius.tl);
+            ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+            ctx.closePath();
+            ctx.lineWidth = 2;
+            ctx.fill();
+            ctx.stroke();
+        },
+        renderTextContainer = function (startingY, height) {
+            ctx.strokeStyle = "rgb(246, 207, 20)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0)";
+            var xPadding = 50;
+            roundRect(referenceX+xPadding,
+                startingY,
+                background.width - xPadding*2,
+                height);
+            startingY+=5;
+            xPadding+=5;
+            height-=10;
+            roundRect(referenceX+xPadding,
+                startingY,
+                background.width - xPadding*2,
+                height);
+        },
+        renderText = function () {
+            var startingY = referenceY + background.height + 80,
+                height = 250;
+            renderTextContainer(startingY,height);
+            var dim = 30;
+            ctx.font = "normal " + dim + "px Montserrat";
+            ctx.fillStyle = "rgb(246, 207, 20)";
+            ctx.fillText("TEST", referenceX, referenceY);
+        },
         render = function() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
             darkBackground();
-            ctx.drawImage(background,
-                (canvas.width-background.width)/2,
-                (canvas.height-background.width)/2-backgroundDy);
+            ctx.drawImage(background,referenceX,referenceY);
             ctx.save();
             ctx.scale(1,-1);
             ctx.globalAlpha = 0.2;
-            ctx.drawImage(background,
-                canvas.width/2 -background.width/2,
-                -background.height*2+backgroundDy-(canvas.height-background.width)/2);
+            ctx.drawImage(background,referenceX,-background.height*2-referenceY);
             ctx.restore();
+            renderText();
         },
         update = function() {
 
@@ -44,6 +85,8 @@ var Game = function() {
         adjustCanvas = function () {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            referenceX = (canvas.width-background.width)/2;
+            referenceY = (canvas.height-background.height)/2-backgroundDy;
         },
         init = function(image) {
             scale = 3;
