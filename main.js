@@ -280,69 +280,27 @@ var letters = {
     ]
 };
 
-var TYPE_TEXT = "T";
-var TYPE_QUESTION = "Q";
-
-var Node = function() {
-    var nodeType,
-        nodeText,
-        nodeQuestion,
-        nodeAnswers,
-        boundingBox,
-        normal = 'rgb(246, 207, 20)',
-        mouseover = 'rgb(0, 207, 20)',
-        clicked = 'rgb(0, 207, 20)',
-        description = function () {
-          if (nodeType == TYPE_TEXT) {
-              return nodeText;
-          }
-          else if (nodeType == TYPE_QUESTION) {
-              return nodeQuestion;
-          }
-        },
-        type = function () {
-            return nodeType;
-        },
-        setBoundingBox = function (bb) {
-          boundingBox = bb;
-        },
-        color = function () {
-            return normal;
-        },
-        init = function (type, text, question, answers) {
-            nodeType = type;
-            nodeText = text;
-            nodeQuestion = question;
-            nodeAnswers = answers;
-        };
-    return {
-        init: init,
-        description: description,
-        type: type,
-        setBoundingBox: setBoundingBox,
-        color: color
-    };
-};
-
 var Story = function () {
-    var start,
-        currentNode,
+    var dialog,
+        current,
         init = function () {
-            // TODO: parse story
-            start = new Node();
-            start.init(TYPE_TEXT, "your life o fool hangs by a thread.");
-            currentNode = start;
+            dialog = {
+                "start": {"t": "your life o fool hangs by a thread. Your time has come.", "n":"n1"},
+                "n1": {"t": "Welcome 2", "n": "n2"},
+                "n2": {"t": "The end", "n": "start"}
+            };
+            current = dialog["start"];
         },
-        current = function () {
-            return currentNode;
+        currentDescription = function () {
+            return current["t"];
         },
         next = function () {
-
+            current = dialog[current["n"]];
         };
     return {
         init: init,
         next: next,
-        current: current
+        currentDescription: currentDescription
     };
 };
 
@@ -455,7 +413,7 @@ var Game = function () {
                 maxCharsPerLine = (containerWidth -textPadding )/ (dim*4)+2,
                 lineOffset = dim * 6;
 
-            var text = story.current().description();
+            var text = story.currentDescription();
             var lines = multilines(text, maxCharsPerLine);
 
             renderTextContainer(xPadding,startingY, (lines.length +1) * lineOffset, containerWidth);
@@ -477,10 +435,6 @@ var Game = function () {
                     color = yellow;
                     ctx.strokeStyle = yellow;
                 }
-
-                // Save bounding box for current node
-                story.current().setBoundingBox(bb);
-                color = story.current().color();
 
                 drawText(lines[i], dim, bb.x1, bb.y1, color);
                 currentOffset += lineOffset;
@@ -521,6 +475,9 @@ var Game = function () {
             };
         },
         init = function (image) {
+            story = new Story();
+            story.init();
+
             scale = 3;
             background = resize(image, scale);
             adjustCanvas();
@@ -529,17 +486,17 @@ var Game = function () {
                 var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
                 mouseX = mousePos.x;
                 mouseY = mousePos.y;
-                console.log(message);
+                // console.log(message);
             }, false);
 
             canvas.addEventListener('mousedown', function (e) {
                 var mousePos = getMousePos(canvas, e);
                 var message = 'Mouse click: ' + mousePos.x + ',' + mousePos.y;
                 console.log(message);
+                story.next();
             }, false);
 
-            story = new Story();
-            story.init();
+
         };
     return {
         init: init,
