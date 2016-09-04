@@ -280,9 +280,76 @@ var letters = {
     ]
 };
 
+var TYPE_TEXT = "T";
+var TYPE_QUESTION = "Q";
+
+var Node = function() {
+    var nodeType,
+        nodeText,
+        nodeQuestion,
+        nodeAnswers,
+        boundingBox,
+        normal = 'rgb(246, 207, 20)',
+        mouseover = 'rgb(0, 207, 20)',
+        clicked = 'rgb(0, 207, 20)',
+        description = function () {
+          if (nodeType == TYPE_TEXT) {
+              return nodeText;
+          }
+          else if (nodeType == TYPE_QUESTION) {
+              return nodeQuestion;
+          }
+        },
+        type = function () {
+            return nodeType;
+        },
+        setBoundingBox = function (bb) {
+          boundingBox = bb;
+        },
+        color = function () {
+            return normal;
+        },
+        init = function (type, text, question, answers) {
+            nodeType = type;
+            nodeText = text;
+            nodeQuestion = question;
+            nodeAnswers = answers;
+        };
+    return {
+        init: init,
+        description: description,
+        type: type,
+        setBoundingBox: setBoundingBox,
+        color: color
+    };
+};
+
+var Story = function () {
+    var start,
+        currentNode,
+        init = function () {
+            // TODO: parse story
+            start = new Node();
+            start.init(TYPE_TEXT, "your life o fool hangs by a thread.");
+            currentNode = start;
+        },
+        current = function () {
+            return currentNode;
+        },
+        next = function () {
+
+        };
+    return {
+        init: init,
+        next: next,
+        current: current
+    };
+};
+
 var Game = function () {
     var canvas = document.getElementById('gameCanvas'),
         ctx = canvas.getContext("2d"),
+        story,
         background,
         scale,
         backgroundDy = 170,
@@ -357,18 +424,7 @@ var Game = function () {
                 width-10,
                 height);
         },
-        renderText = function () {
-            var startingY = referenceY + background.height + 80,
-                xPadding = 50,
-                containerWidth = background.width - xPadding * 2,
-                dim = 6,
-                startingTextY = startingY + 20,
-                textPadding = xPadding + 30,
-                maxCharsPerLine = (containerWidth -textPadding )/ (dim*4)+2,
-                lineOffset = dim * 6;
-
-            // Process multi-line
-            var text = "your life o fool hangs by a thread. Your time is short. >";
+        multilines = function (text, maxCharsPerLine) {
             var lines = [];
             var tokens = text.split(" ");
             var line = "";
@@ -387,11 +443,27 @@ var Game = function () {
                     }
                 }
             }
+            return lines;
+        },
+        renderText = function () {
+            var startingY = referenceY + background.height + 80,
+                xPadding = 50,
+                containerWidth = background.width - xPadding * 2,
+                dim = 6,
+                startingTextY = startingY + 20,
+                textPadding = xPadding + 30,
+                maxCharsPerLine = (containerWidth -textPadding )/ (dim*4)+2,
+                lineOffset = dim * 6;
+
+            var text = story.current().description();
+            var lines = multilines(text, maxCharsPerLine);
 
             renderTextContainer(xPadding,startingY, (lines.length +1) * lineOffset, containerWidth);
             ctx.lineWidth = 0;
             var color = yellow;
             var currentOffset = 0;
+
+            // Draw description
             for (var i = 0; i < lines.length; i++) {
                 var bb = {
                     x1: referenceX+textPadding,
@@ -400,12 +472,20 @@ var Game = function () {
                     y2: startingTextY + currentOffset + lineOffset};
                 if( bb.x1 <= mouseX && mouseX <= bb.x2 && bb.y1 <= mouseY && mouseY <= bb.y2 ) {
                     color = blue;
+                    ctx.strokeStyle = blue;
                 } else {
                     color = yellow;
+                    ctx.strokeStyle = yellow;
                 }
+
+                // Save bounding box for current node
+                story.current().setBoundingBox(bb);
+                color = story.current().color();
+
                 drawText(lines[i], dim, bb.x1, bb.y1, color);
                 currentOffset += lineOffset;
             }
+
 
         },
         render = function () {
@@ -451,6 +531,15 @@ var Game = function () {
                 mouseY = mousePos.y;
                 console.log(message);
             }, false);
+
+            canvas.addEventListener('mousedown', function (e) {
+                var mousePos = getMousePos(canvas, e);
+                var message = 'Mouse click: ' + mousePos.x + ',' + mousePos.y;
+                console.log(message);
+            }, false);
+
+            story = new Story();
+            story.init();
         };
     return {
         init: init,
