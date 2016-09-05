@@ -315,14 +315,14 @@ var Story = function () {
             dialog = {
                 // PRESENTATION
                 "presentation": {
-                    "t":"          The glitch",
-                    "n":"obtained_items",
-                    "c": nc
+                    "t":"      The spear of time",
+                    "n":"thursday1",
+                    "c": nc,
                 },
                 "thursday1":{
                     "t":"It is thursday.",
                     "n":"thursday2",
-                    "c": nc
+                    "c": nc,
                 },
                 "thursday2":{
                     "t":"In my experience nothing good happens on Thursdays.",
@@ -362,9 +362,10 @@ var Story = function () {
 
                 // Q1 spear
                 "q1.spear":{
-                    "t":"I use the spear to pierce my heart.",
+                    "t":"You use the spear to pierce your heart.",
                     "n":"q1.spear.death",
-                    "c": ic
+                    "c": ic,
+                    "s": "clear"
                 },
                 "q1.spear.death":{
                     "t":"Death: Fool, It was not your time, but nothing escapes me.",
@@ -377,7 +378,7 @@ var Story = function () {
                     "c": dc
                 },
                 "q1.spear.song":{
-                    "t":"You hear the song calling you soul, separating it from your body.",
+                    "t":"You hear the song calling your soul, separating it from your body.",
                     "n":"q1.spear.dies",
                     "c": nc
                 },
@@ -450,43 +451,178 @@ var Story = function () {
                     ],
                     "c": nc
                 },
-                // Amulet tree
+
+                // Q2 Amulet
                 "q2.amulet":{
                     "t":"This should stop Death.",
                     "n":"q2.amulet.shout",
                     "c": nc
                 },
                 "q2.amulet.shout":{
-                    "t":"Death! It is your time that is up this time.",
+                    "t":"Death! It is your time that is up.",
                     "n":"q2.amulet.a",
                     "c": nc
                 },
                 "q2.amulet.a":{
-                    "t":"Alex: ... [confused]",
+                    "t":"Alex: ... [ confused ]",
                     "n":"q2.amulet.d",
                     "c": ac
                 },
                 "q2.amulet.d":{
-                    "t":"Death: It is not you who I want, you are not on the list yet.",
-                    "n":"q2",
-                    "c": ac
+                    "t":"Death: It is not you who I want. you are not on the list yet.",
+                    "n":"q2.amulet.d.song",
+                    "c": dc
+                },
+                "q2.amulet.d.song":{
+                    "t":"Death: [ sings ]",
+                    "n":"q2.amulet.d.song2",
+                    "c": dc,
+                    "s": "clear"
+                },
+                "q2.amulet.d.song2":{
+                    "t":"You see Alex drop to the floor. And Death vanishes.",
+                    "n":"q2.amulet.death",
+                    "c": nc
+                },
+                "q2.amulet.death":{
+                    "t":"Not again...",
+                    "n":"q2.amulet.death.item",
+                    "c": nc
+                },
+                "q2.amulet.death.item":{
+                    "t":"Use Item:",
+                    "a":[
+                        {"t": "Use spear", "n":"q1.spear"},
+                    ],
+                    "c": nc
                 },
 
+                // Q2 Incantation
+                "q2.incantation":{
+                    "t":"You open the book and read the first incantation.",
+                    "n":"q2.incantation2",
+                    "c": ic
+                },
+                "q2.incantation2":{
+                    "t":"Alex and Death are frozen in place.",
+                    "n":"q2.incantation2.d",
+                    "c": nc
+                },
 
-                "start": {
-                    "t": "your life hangs by a thread. Your time is short.",
+                "q2.incantation2.d":{
+                    "t":"The spell is not holding and Death will be free soon.",
+                    "n":"q3",
+                    "c": nc
+                },
+
+                // Q3
+                "q3":{
+                    "t":"Bought a bit of time. I can use an Item:",
                     "a":[
-                        {"t": "Who are you?", "n":"who_are"},
-                        //{"t": "Have you come for me?", "n": "come_for_me"}
+                        {"t": "Use amulet", "n":"q3.items.amulet"},
+                        {"t": "Read Incantation", "n":"q2.incantation"},
+                        {"t": "Use spear", "n":"q1.spear"},
                     ],
-                    "c":dc},
-                "who_are": {"t": "I am Death. The Grim Reaper.", "n": "i_am_here"},
-                "i_am_here":{"t": "I am here to collect.", "n":""},
-                "come_for_me": {"t": "Yes, your time is up.", "n": "start",
-                "end":{"t":"", "n":""}
+                    "c": nc
+                },
+                "q3.items.amulet":{
+                    "t":"This should stop Death.",
+                    "n":"q3.items2",
+                    "c": nc
+                },
+                "q3.items2":{
+                    "t":"Use Item:",
+                    "a":[
+                        {"t": "Use spear", "n":"q3.items2.spear"},
+                    ],
+                    "c": nc
+                },
+                "q3.items2.spear":{
+                    "t":"You use the spear to pierce your heart.",
+                    "n":"q3.items2.spear2",
+                    "c": ic
+                },
+                "q3.items2.spear2":{
+                    "t":"Death: ...[ Tries to move ]",
+                    "n":"q3.items2.spear3",
+                    "c": dc
+                },
+                "q3.items2.spear3":{
+                    "t":"The amulet absorbs your soul.",
+                    "n":"q3.items2.spear4",
+                    "c": ic
+                },
+                "q3.items2.spear4":{
+                    "t":"Death breaks the spell.",
+                    "n":"q3.items2.spear5",
+                    "c": nc
+                },
+
+                "q3.items2.spear5":{
+                    "t":"Death: [ sings ]",
+                    "n":"q3.items2.spear6",
+                    "c": dc
+                },
+                "q3.items2.spear6":{
+                    "t":"Nothing happens.",
+                    "n":"q3.items2.spear7",
+                    "c": nc
+                },
+                "q3.items2.spear7":{
+                    "t":"Death: [ confused ] [ sings again]",
+                    "n":"q3.items2.spear8",
+                    "c": dc
+                },
+                "q3.items2.spear8":{
+                    "t":"Nothing happens again.",
+                    "n":"q3.items2.spear9",
+                    "c": nc
+                },
+                "q3.items2.spear9":{
+                    "t":"You take out the spear from your heart.",
+                    "n":"q4",
+                    "c": nc
+                },
+
+                // Q4
+                "q4":{
+                    "t":"With the Spear in hand there is one more thing to do",
+                    "a":[
+                        {"t": "Kill Death", "n":"q4.kill"}
+                    ],
+                    "c": nc
+                },
+
+                "q4.kill":{
+                    "t":"You pierce Death and it banishes leaving just the robes and the scythe.",
+                    "n":"q4.kill2",
+                    "c": nc,
+                    "s": "clear"
+                },
+
+                "q4.kill2":{
+                    "t":"The robes float and wrap your body. you pick up the scythe.",
+                    "n":"q4.kill3",
+                    "c": nc,
+                },
+
+                "q4.kill3":{
+                    "t":"Sorry Alex, but your life hangs by a thread. Your time is short.",
+                    "n":"q4.kill4",
+                    "c": nc,
+                },
+                "q4.kill4":{
+                    "t":"           [ sings ]",
+                    "n":"q4.kill.end",
+                    "c": nc,
+                },
+                "q4.kill.end":{
+                    "t":"            The end",
+                    "n":"q4.kill.end",
+                    "c": nc,
                 }
             };
-            current = dialog["q2"];
+            current = dialog["presentation"];
             started = false;
         },
         currentDescription = function () {
@@ -509,6 +645,8 @@ var Story = function () {
                 if ("s" in current) {
                     if (current["s"] == "start") {
                         started = true;
+                    } else if (current["s"] == "clear") {
+                        started = false;
                     }
                 }
                 current = dialog[current["n"]];
