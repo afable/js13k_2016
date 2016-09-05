@@ -165,8 +165,8 @@ var letters = {
     ],
     'W': [
         [1, , , , 1],
-        [1, , , , 1],
-        [1, , , , 1],
+        [1, , 1, , 1],
+        [1, , 1, , 1],
         [1, , 1, , 1],
         [1, 1, 1, 1, 1]
     ],
@@ -285,22 +285,57 @@ var Story = function () {
         current,
         init = function () {
             dialog = {
-                "start": {"t": "your life o fool hangs by a thread. Your time has come.", "n":"n1"},
-                "n1": {"t": "Welcome 2", "n": "n2"},
-                "n2": {"t": "The end", "n": "start"}
+                "start": {
+                    "t": "your life o fool hangs by a thread. Your time has come.",
+                    "a":[
+                        {"t": "YES answer long to check for multiline split", "n":"n1"},
+                        {"t": "NO answer with also multiline split check", "n": "n2"}
+                    ]},
+                "n1": {"t": "Yes text", "n": "n2"},
+                "n2": {"t": "No text", "n": "start"}
             };
             current = dialog["start"];
         },
         currentDescription = function () {
             return current["t"];
         },
-        next = function () {
-            current = dialog[current["n"]];
+        next = function (x,y) {
+            if (isQuestion()) {
+                var answers = current["a"];
+                for(var i = 0; i < answers.length; i++) {
+                    var answer = answers[i];
+                    if ("bb" in answer) {
+                        var bb = answer["bb"];
+                        if( bb.x1 <= x && x <= bb.x2 && bb.y1 <= y && y <= bb.y2 ) {
+                            current = dialog[answer["n"]];
+                            break;
+                        }
+                    }
+                }
+            } else {
+                current = dialog[current["n"]];
+            }
+        },
+        isQuestion = function () {
+            if ("n" in current) {
+                return false;
+            } else if ("a" in current) {
+                return true;
+            }
+
+            return false;
+        },
+        answers = function () {
+            if (isQuestion()) {
+                return current["a"];
+            }
         };
     return {
         init: init,
         next: next,
-        currentDescription: currentDescription
+        currentDescription: currentDescription,
+        isQuestion: isQuestion,
+        answers: answers
     };
 };
 
@@ -313,8 +348,8 @@ var Game = function () {
         backgroundDy = 170,
         referenceX,
         referenceY,
-        yellow = 'rgb(246, 207, 20)',
-        blue = 'rgb(0, 207, 20)',
+        regularColor = 'rgb(246, 207, 20)',
+        selectedColor = 'rgb(0, 207, 20)',
         mouseX,
         mouseY,
         darkBackground = function () {
@@ -357,7 +392,7 @@ var Game = function () {
                     var row = letter[y];
                     for (var x = 0; x < row.length; x++) {
                         if (row[x]) {
-                            ctx.fillRect(currX + x * size, currY, size, size);
+                            ctx.fillRect(currX + x * size, currY, size+1, size);
                         }
                     }
                     addX = Math.max(addX, row.length * size);
@@ -417,8 +452,8 @@ var Game = function () {
             var lines = multilines(text, maxCharsPerLine);
 
             renderTextContainer(xPadding,startingY, (lines.length +1) * lineOffset, containerWidth);
-            ctx.lineWidth = 0;
-            var color = yellow;
+            ctx.lineWidth = 1;
+            var color = regularColor;
             var currentOffset = 0;
 
             // Draw description
@@ -428,19 +463,42 @@ var Game = function () {
                     y1: startingTextY + currentOffset,
                     x2: referenceX+textPadding + containerWidth,
                     y2: startingTextY + currentOffset + lineOffset};
-                if( bb.x1 <= mouseX && mouseX <= bb.x2 && bb.y1 <= mouseY && mouseY <= bb.y2 ) {
-                    color = blue;
-                    ctx.strokeStyle = blue;
-                } else {
-                    color = yellow;
-                    ctx.strokeStyle = yellow;
-                }
 
                 drawText(lines[i], dim, bb.x1, bb.y1, color);
                 currentOffset += lineOffset;
             }
 
+            currentOffset += lineOffset;
 
+            if (story.isQuestion()) {
+                story.answers().forEach(function (e) {
+                    var lines = multilines("> " + e["t"], maxCharsPerLine);
+                    var bb = {
+                        x1: referenceX+textPadding,
+                        y1: startingTextY + currentOffset,
+                        x2: referenceX+textPadding + containerWidth,
+                        y2: startingTextY + currentOffset + (lines.length * lineOffset)
+                    };
+                    e["bb"] = bb;
+                    // debug
+                    // ctx.fillRect(bb.x1, bb.y1, bb.x2-bb.x1, bb.y2-bb.y1);
+                    var y = bb.y1;
+                    for (var i = 0; i < lines.length; i++) {
+                        if( bb.x1 <= mouseX && mouseX <= bb.x2 && bb.y1 <= mouseY && mouseY <= bb.y2 ) {
+                            color = selectedColor;
+                            ctx.strokeStyle = selectedColor;
+                        } else {
+                            color = regularColor;
+                            ctx.strokeStyle = regularColor;
+                        }
+
+                        drawText(lines[i], dim, bb.x1, y, color);
+                        currentOffset += lineOffset;
+                        y += lineOffset;
+                    }
+                    currentOffset += lineOffset/2;
+                });
+            }
         },
         render = function () {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -481,22 +539,18 @@ var Game = function () {
             scale = 3;
             background = resize(image, scale);
             adjustCanvas();
-            canvas.addEventListener('mousemove', function(evt) {
-                var mousePos = getMousePos(canvas, evt);
-                var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+            canvas.addEventListener('mousemove', function(e) {
+                var mousePos = getMousePos(canvas, e);
                 mouseX = mousePos.x;
                 mouseY = mousePos.y;
-                // console.log(message);
             }, false);
 
             canvas.addEventListener('mousedown', function (e) {
                 var mousePos = getMousePos(canvas, e);
                 var message = 'Mouse click: ' + mousePos.x + ',' + mousePos.y;
                 console.log(message);
-                story.next();
+                story.next(mousePos.x, mousePos.y);
             }, false);
-
-
         };
     return {
         init: init,
