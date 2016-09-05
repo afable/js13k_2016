@@ -271,6 +271,28 @@ var letters = {
         [, 1,],
         []
     ],
+    '!': [
+        [,1,],
+        [, 1,],
+        [,1],
+        [, ,],
+        [, 1,],
+        [,,]
+    ],
+    '[': [
+        [1, 1, ],
+        [1, , ],
+        [1, , ],
+        [1, , ],
+        [1, 1, ]
+    ],
+    ']': [
+        [, 1, 1],
+        [, , 1],
+        [, , 1],
+        [, , 1],
+        [, 1, 1]
+    ],
     '>': [
         [, 1,],
         [,1 , 1],
@@ -283,18 +305,189 @@ var letters = {
 var Story = function () {
     var dialog,
         current,
+        started,
+        defaultColor = 'rgb(0, 207, 20)',
+        dc = 'rgb(153, 153, 255)',
+        ic = 'rgb(204, 255, 229)',
+        nc = 'rgb(246, 207, 20)',
+        ac = 'rgb(153, 255, 153)',
         init = function () {
             dialog = {
-                "start": {
-                    "t": "your life o fool hangs by a thread. Your time has come.",
+                // PRESENTATION
+                "presentation": {
+                    "t":"          The glitch",
+                    "n":"obtained_items",
+                    "c": nc
+                },
+                "thursday1":{
+                    "t":"It is thursday.",
+                    "n":"thursday2",
+                    "c": nc
+                },
+                "thursday2":{
+                    "t":"In my experience nothing good happens on Thursdays.",
+                    "n":"today_shame",
+                    "c": nc
+                },
+                "today_shame":{
+                    "t":"A shame it has to be done today or it may not happen again.",
+                    "n":"item_list",
+                    "c": nc
+                },
+                "item_list":{
+                    "t":"Went through a lot of trouble to gather the items, but I am ready.",
+                    "n":"obtained_items",
+                    "c": nc
+                },
+                "obtained_items":{
+                    "t":"Obtained: The list. Amulet of protection. Book of incantations. Spear of time.",
+                    "n":"q1",
+                    "c": ic
+                },
+                "q1":{
+                    "t":"Use Item:",
                     "a":[
-                        {"t": "YES answer long to check for multiline split", "n":"n1"},
-                        {"t": "NO answer with also multiline split check", "n": "n2"}
-                    ]},
-                "n1": {"t": "Yes text", "n": "n2"},
-                "n2": {"t": "No text", "n": "start"}
+                        {"t": "Read list", "n":"q1.list"},
+                        {"t": "Use Amulet", "n":"q1.nothing"},
+                        {"t": "Read Incantation", "n":"q1.nothing"},
+                        {"t": "Use spear", "n":"q1.spear"},
+                    ],
+                    "c": nc
+                },
+                "q1.nothing":{
+                    "t":"Is not the time to use this.",
+                    "n":"q1",
+                    "c": nc
+                },
+
+                // Q1 spear
+                "q1.spear":{
+                    "t":"I use the spear to pierce my heart.",
+                    "n":"q1.spear.death",
+                    "c": ic
+                },
+                "q1.spear.death":{
+                    "t":"Death: Fool, It was not your time, but nothing escapes me.",
+                    "n":"q1.spear.death2",
+                    "c": dc
+                },
+                "q1.spear.death2":{
+                    "t":"Death: [ sings ]",
+                    "n":"q1.spear.song",
+                    "c": dc
+                },
+                "q1.spear.song":{
+                    "t":"You hear the song calling you soul, separating it from your body.",
+                    "n":"q1.spear.dies",
+                    "c": nc
+                },
+                "q1.spear.dies":{
+                    "t":"You died.",
+                    "n":"q1.q1",
+                    "c": nc
+                },
+
+                "q1.q1":{
+                    "t":"The spear grants you another chance:",
+                    "a":[
+                        {"t": "Try again", "n":"thursday1"},
+                    ],
+                    "c": nc
+                },
+
+                // Q1 List
+                "q1.list":{
+                    "t":"Alex Anderson 11:13 pm. The bus stop at 34th street.",
+                    "n":"travel",
+                    "c": ic
+                },
+                "travel":{
+                    "t":"Let's go.",
+                    "n":"watching",
+                    "c": nc,
+                    "s": "start"
+                },
+
+                // BUS TOP
+                "watching":{
+                    "t":"There they are. Both on time, which is unfortunate for Alex. I will stay far from sight for now.",
+                    "n":"d_presents",
+                    "c": nc
+                },
+                "d_presents":{
+                    "t":"Death: I was expecting you Alex. your life hangs by a thread. Your time is short.",
+                    "n":"a_asks",
+                    "c": dc
+                },
+                "a_asks":{
+                    "t":"Alex: Who are you? How do you know my name?",
+                    "n":"d_who",
+                    "c": ac
+                },
+                "d_who":{
+                    "t":"Death: I am Death. The Grim Reaper. And your time is up.",
+                    "n":"n_usual",
+                    "c": dc
+                },
+
+                "n_usual":{
+                    "t":"Probably Alex is begging for more time. But nothing escapes death.",
+                    "n":"n_ready",
+                    "c": nc
+                },
+                "n_ready":{
+                    "t":"I should get ready.",
+                    "n":"q2",
+                    "c": nc
+                },
+
+                "q2":{
+                    "t":"Use Item:",
+                    "a":[
+                        {"t": "Use amulet", "n":"q2.amulet"},
+                        {"t": "Read Incantation", "n":"q2.incantation"},
+                        {"t": "Use spear", "n":"q1.spear"},
+                    ],
+                    "c": nc
+                },
+                // Amulet tree
+                "q2.amulet":{
+                    "t":"This should stop Death.",
+                    "n":"q2.amulet.shout",
+                    "c": nc
+                },
+                "q2.amulet.shout":{
+                    "t":"Death! It is your time that is up this time.",
+                    "n":"q2.amulet.a",
+                    "c": nc
+                },
+                "q2.amulet.a":{
+                    "t":"Alex: ... [confused]",
+                    "n":"q2.amulet.d",
+                    "c": ac
+                },
+                "q2.amulet.d":{
+                    "t":"Death: It is not you who I want, you are not on the list yet.",
+                    "n":"q2",
+                    "c": ac
+                },
+
+
+                "start": {
+                    "t": "your life hangs by a thread. Your time is short.",
+                    "a":[
+                        {"t": "Who are you?", "n":"who_are"},
+                        //{"t": "Have you come for me?", "n": "come_for_me"}
+                    ],
+                    "c":dc},
+                "who_are": {"t": "I am Death. The Grim Reaper.", "n": "i_am_here"},
+                "i_am_here":{"t": "I am here to collect.", "n":""},
+                "come_for_me": {"t": "Yes, your time is up.", "n": "start",
+                "end":{"t":"", "n":""}
+                }
             };
-            current = dialog["start"];
+            current = dialog["q2"];
+            started = false;
         },
         currentDescription = function () {
             return current["t"];
@@ -313,7 +506,13 @@ var Story = function () {
                     }
                 }
             } else {
+                if ("s" in current) {
+                    if (current["s"] == "start") {
+                        started = true;
+                    }
+                }
                 current = dialog[current["n"]];
+
             }
         },
         isQuestion = function () {
@@ -329,13 +528,29 @@ var Story = function () {
             if (isQuestion()) {
                 return current["a"];
             }
+        },
+        displayBackground = function () {
+            if (started) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        color = function () {
+            if ("c" in current) {
+                return current["c"];
+            }
+
+            return defaultColor;
         };
     return {
         init: init,
         next: next,
         currentDescription: currentDescription,
         isQuestion: isQuestion,
-        answers: answers
+        answers: answers,
+        displayBackground: displayBackground,
+        color: color
     };
 };
 
@@ -349,7 +564,7 @@ var Game = function () {
         referenceX,
         referenceY,
         regularColor = 'rgb(246, 207, 20)',
-        selectedColor = 'rgb(0, 207, 20)',
+        selectedColor = 'rgb(255, 255, 153)',
         mouseX,
         mouseY,
         darkBackground = function () {
@@ -402,8 +617,8 @@ var Game = function () {
             }
 
         },
-        renderTextContainer = function (xPadding, startingY, height, width) {
-            ctx.strokeStyle = "rgb(246, 207, 20)";
+        renderTextContainer = function (xPadding, startingY, height, width, color) {
+            ctx.strokeStyle = color;
             ctx.fillStyle = "rgba(0, 0, 0, 0)";
             roundRect(referenceX + xPadding,
                 startingY,
@@ -445,15 +660,14 @@ var Game = function () {
                 dim = 6,
                 startingTextY = startingY + 20,
                 textPadding = xPadding + 30,
-                maxCharsPerLine = (containerWidth -textPadding )/ (dim*4)+2,
+                maxCharsPerLine = (containerWidth -textPadding )/ (dim*4)+3,
                 lineOffset = dim * 6;
 
             var text = story.currentDescription();
             var lines = multilines(text, maxCharsPerLine);
-
-            renderTextContainer(xPadding,startingY, (lines.length +1) * lineOffset, containerWidth);
+            var color = story.color();
+            renderTextContainer(xPadding,startingY, (lines.length +1) * lineOffset, containerWidth, color);
             ctx.lineWidth = 1;
-            var color = regularColor;
             var currentOffset = 0;
 
             // Draw description
@@ -503,12 +717,14 @@ var Game = function () {
         render = function () {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             darkBackground();
-            ctx.drawImage(background, referenceX, referenceY);
-            ctx.save();
-            ctx.scale(1, -1);
-            ctx.globalAlpha = 0.2;
-            ctx.drawImage(background, referenceX, -background.height * 2 - referenceY);
-            ctx.restore();
+            if (story.displayBackground()) {
+                ctx.drawImage(background, referenceX, referenceY);
+                ctx.save();
+                ctx.scale(1, -1);
+                ctx.globalAlpha = 0.2;
+                ctx.drawImage(background, referenceX, -background.height * 2 - referenceY);
+                ctx.restore();
+            }
             renderText();
         },
         update = function () {
