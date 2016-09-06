@@ -1131,7 +1131,6 @@ var Game = function () {
             canvas.addEventListener('mousedown', function (e) {
                 var mousePos = getMousePos(canvas, e);
                 var message = 'Mouse click: ' + mousePos.x + ',' + mousePos.y;
-                console.log(message);
                 story.next(mousePos.x, mousePos.y);
             }, false);
         };
