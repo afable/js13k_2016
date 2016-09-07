@@ -683,7 +683,7 @@ var Story = function () {
                     "c": nc
                 },
                 "q2.amulet.shout":{
-                    "t":"Death! It is your time that is up.",
+                    "t":"Death! It is your time that is up. [ shouting ]",
                     "n":"q2.amulet.a",
                     "c": nc
                 },
@@ -932,7 +932,7 @@ var Game = function () {
         mouseX,
         mouseY,
         darkBackground = function () {
-            ctx.fillStyle = 'rgb(0,0,0';
+            ctx.fillStyle = 'rgb(0,0,0)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         },
         roundRect = function (x, y, width, height) {
@@ -954,6 +954,8 @@ var Game = function () {
         },
         drawText = function (string, size, dx, dy, color) {
             ctx.fillStyle = color;
+
+            ctx.beginPath();
             var needed = [];
             string = string.toUpperCase();
             for (var i = 0; i < string.length; i++) {
@@ -971,7 +973,7 @@ var Game = function () {
                     var row = letter[y];
                     for (var x = 0; x < row.length; x++) {
                         if (row[x]) {
-                            ctx.fillRect(currX + x * size, currY, size+1, size);
+                            ctx.rect(currX + x * size, currY, size, size);
                         }
                     }
                     addX = Math.max(addX, row.length * size);
@@ -979,7 +981,8 @@ var Game = function () {
                 }
                 currX += size + addX;
             }
-
+            ctx.closePath();
+            ctx.fill();
         },
         renderTextContainer = function (xPadding, startingY, height, width, color) {
             ctx.strokeStyle = color;
@@ -1031,7 +1034,7 @@ var Game = function () {
             var lines = multilines(text, maxCharsPerLine);
             var color = story.color();
             renderTextContainer(xPadding,startingY, (lines.length +1) * lineOffset, containerWidth, color);
-            ctx.lineWidth = 1;
+
             var currentOffset = 0;
 
             // Draw description
@@ -1196,7 +1199,8 @@ gameImage.onload = function () {
 };
 
 // https://github.com/kevincennis/TinyMusic
-var ac = new AudioContext();
+var ac = typeof AudioContext !== 'undefined' ? new AudioContext : new webkitAudioContext;
+
 var tempo = 40;
 var sequence = new TinyMusic.Sequence( ac, tempo, [
     'B2 q','G1 e','- e','G1 e','B2 e',
