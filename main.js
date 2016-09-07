@@ -839,11 +839,12 @@ var Story = function () {
                     "t":"           [ sings ]",
                     "n":"q4.kill.end",
                     "c": nc,
+                    "s":"stop"
                 },
                 "q4.kill.end":{
                     "t":"            The end",
                     "n":"q4.kill.end",
-                    "c": nc,
+                    "c": nc
                 }
             };
             current = dialog["presentation"];
@@ -873,7 +874,10 @@ var Story = function () {
                         started = false;
                     } else if (current["s"] == "music") {
                         sequence.play();
+                    } else if (current["s"] == "stop") {
+                        sequence.stop();
                     }
+
                 }
                 current = dialog[current["n"]];
 
